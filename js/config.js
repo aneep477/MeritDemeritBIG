@@ -1,6 +1,6 @@
-// Configuration for EDU-MERIT System
+// Configuration for EDU-MERIT System - UPDATED URL
 const CONFIG = {
-    // API Configuration - UPDATE WITH YOUR APPS SCRIPT URL
+    // API Configuration - USE THIS EXACT URL
     API_BASE_URL: 'https://script.google.com/macros/s/AKfycbyGn6_4MvX7GtdW_1cvjb-1d9MZYQBVwCbzZyTUD2IIzXzS0boFFWJuJdKX-fI0DvFW/exec',
     
     // System Settings
@@ -18,9 +18,6 @@ const CONFIG = {
         disableFlip: false
     },
     
-    // UI Settings
-    THEME: 'industrial',
-    
     // Storage Keys
     STORAGE_KEYS: {
         AUTH_TOKEN: 'edu_merit_token',
@@ -28,7 +25,7 @@ const CONFIG = {
         LAST_STUDENT: 'edu_merit_last_student'
     },
     
-    // Demo Credentials (for testing)
+    // Demo Credentials
     DEMO_CREDENTIALS: [
         {
             icNumber: '750512086543',
