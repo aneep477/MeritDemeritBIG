@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ms" data-theme="industrial">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDU-MERIT :: Sistem Merit Demerit Pelajar</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- QR Scanner -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    
+    <!-- iOS Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body class="loading">
+    <!-- System Status Bar -->
+    <div class="system-bar">
+        <div class="system-status">
+            <span class="status-indicator" id="statusIndicator"></span>
+            <span class="status-text" id="statusText">MENYAMBUNG KE SISTEM...</span>
+            <span class="time-display" id="systemTime">--:--:--</span>
+        </div>
+        <div class="system-metrics">
+            <span class="metric"><i class="fas fa-database"></i> <span id="totalStudents">0</span> PELAJAR</span>
+            <span class="metric"><i class="fas fa-exchange-alt"></i> <span id="totalTransactions">0</span> TRANSAKSI</span>
+            <span class="metric"><i class="fas fa-server"></i> GSHEET-API</span>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                        <div class="logo-pulse"></div>
+                    </div>
+                    <h1 class="system-title">
+                        <span class="title-part">EDU</span>
+                        <span class="title-divider">-</span>
+                        <span class="title-part">MERIT</span>
+                    </h1>
+                    <div class="system-subtitle">SISTEM BRUTAL INDUSTRI V2.4.1</div>
+                </div>
+                
+                <div class="system-info">
+                    <div class="info-item">
+                        <i class="fas fa-link"></i>
+                        <span>API: <code id="apiStatus">Disconnected</code></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Google Sheets Authentication</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="login-form-container">
+                <div class="form-header">
+                    <h2><i class="fas fa-fingerprint"></i> AUTHENTIKASI PENSYARAH</h2>
+                    <p class="form-subtitle">Gunakan No. Kad Pengenalan dan kata laluan</p>
+                </div>
+                
+                <form id="loginForm" class="industrial-form">
+                    <div class="input-group">
+                        <label for="icNumber">
+                            <i class="fas fa-id-card"></i>
+                            NO. KAD PENGENALAN
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="text" 
+                                   id="icNumber" 
+                                   name="icNumber"
+                                   pattern="[0-9]{12}"
+                                   placeholder="Contoh: 750512086543"
+                                   required
+                                   autocomplete="off">
+                            <div class="input-border"></div>
+                        </div>
+                        <div class="input-hint">12 digit tanpa tanda sempang</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="password">
+                            <i class="fas fa-key"></i>
+                            KATA LALUAN
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="password" 
+                                   id="password" 
+                                   name="password"
+                                   placeholder="Nama pengguna email (tanpa @edu.my)"
+                                   required
+                                   autocomplete="current-password">
+                            <div class="input-border"></div>
+                            <button type="button" class="toggle-password" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="input-hint">Bahagian sebelum @ dalam email</div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-large" id="loginBtn">
+                            <span class="btn-content">
+                                <i class="fas fa-unlock"></i>
+                                <span>AKSES SISTEM</span>
+                            </span>
+                            <div class="btn-overlay"></div>
+                        </button>
+                        
+                        <div class="demo-credentials">
+                            <h4><i class="fas fa-flask"></i> CREDENTIALS DEMO:</h4>
+                            <div class="credential-grid">
+                                <div class="credential">
+                                    <strong>IC:</strong> 750512086543
+                                    <br><strong>Pass:</strong> sarah
+                                </div>
+                                <div class="credential">
+                                    <strong>IC:</strong> 820309126789
+                                    <br><strong>Pass:</strong> ahmad
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <div class="form-footer">
+                    <div class="security-notice">
+                        <i class="fas fa-lock"></i>
+                        Sistem ini disambung ke Google Sheets melalui API Apps Script yang selamat.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="login-footer">
+                <div class="version-info">
+                    <span>v2.4.1</span>
+                    <span class="separator">•</span>
+                    <span id="apiEndpoint">API: Connected</span>
+                    <span class="separator">•</span>
+                    <span id="currentDate">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Screen -->
+    <div id="appScreen" class="screen">
+        <div class="app-container">
+            <!-- Top Navigation -->
+            <div class="app-header">
+                <div class="header-left">
+                    <button class="btn btn-icon" id="menuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="app-title">
+                        <h2>EDU-MERIT DASHBOARD</h2>
+                        <div class="subtitle">Sistem Pengurusan Merit/Demerit Pelajar</div>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="user-details">
+                            <div class="user-name" id="currentUserName">Loading...</div>
+                            <div class="user-role" id="currentUserDept">Loading...</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> LOGOUT
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="app-content">
+                <!-- Left Sidebar -->
+                <div class="sidebar" id="sidebar">
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-qrcode"></i> SCANNER</h3>
+                        <div class="scanner-controls">
+                            <button class="btn btn-primary btn-block" id="startScannerBtn">
+                                <i class="fas fa-camera"></i> HIDUPKAN SCANNER
+                            </button>
+                            <button class="btn btn-secondary btn-block" id="stopScannerBtn" disabled>
+                                <i class="fas fa-stop"></i> MATIKAN SCANNER
+                            </button>
+                        </div>
+                        
+                        <div class="manual-input">
+                            <h4><i class="fas fa-keyboard"></i> INPUT MANUAL</h4>
+                            <div class="input-group">
+                                <input type="text" 
+                                       id="manualStudentId" 
+                                       placeholder="ID Pelajar (STD2024001)"
+                                       class="input-field">
+                                <button class="btn btn-accent" id="searchStudentBtn">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-chart-line"></i> STATISTIK</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-label">PELAJAR AKTIF</div>
+                                <div class="stat-value" id="statStudents">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">TRANSAKSI HARI INI</div>
+                                <div class="stat-value" id="statToday">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">TOTAL MERIT</div>
+                                <div class="stat-value" id="statMerit">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">TOTAL DEMERIT</div>
+                                <div class="stat-value" id="statDemerit">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <h3><i class="fas fa-bolt"></i> ACTION PANEL</h3>
+                        <div class="quick-actions">
+                            <button class="btn-action merit" data-points="1" data-type="merit">
+                                <span class="action-icon">+1</span>
+                                <span class="action-label">MERIT</span>
+                            </button>
+                            <button class="btn-action merit" data-points="3" data-type="merit">
+                                <span class="action-icon">+3</span>
+                                <span class="action-label">MERIT</span>
+                            </button>
+                            <button class="btn-action demerit" data-points="1" data-type="demerit">
+                                <span class="action-icon">-1</span>
+                                <span class="action-label">DEMERIT</span>
+                            </button>
+                            <button class="btn-action demerit" data-points="3" data-type="demerit">
+                                <span class="action-icon">-3</span>
+                                <span class="action-label">DEMERIT</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Panel -->
+                <div class="main-panel">
+                    <!-- Scanner View -->
+                    <div class="panel-section" id="scannerSection">
+                        <div class="section-header">
+                            <h3><i class="fas fa-camera"></i> KAMERA SCANNER</h3>
+                            <div class="section-actions">
+                                <div class="camera-status">
+                                    <span class="status-dot" id="cameraStatus"></span>
+                                    <span id="cameraStatusText">OFF</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="scanner-viewport">
+                            <div id="qrReader" class="qr-reader"></div>
+                            <div class="scanner-overlay">
+                                <div class="scan-frame">
+                                    <div class="corner tl"></div>
+                                    <div class="corner tr"></div>
+                                    <div class="corner bl"></div>
+                                    <div class="corner br"></div>
+                                </div>
+                                <div class="scan-line"></div>
+                                <div class="scan-instruction">
+                                    <i class="fas fa-qrcode"></i>
+                                    Arahkan kod QR pelajar ke dalam bingkai
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Student Info Panel -->
+                    <div class="panel-section" id="studentSection" style="display: none;">
+                        <div class="section-header">
+                            <h3><i class="fas fa-user-graduate"></i> MAKLUMAT PELAJAR</h3>
+                            <div class="section-actions">
+                                <button class="btn btn-secondary btn-sm" id="refreshStudentBtn">
+                                    <i class="fas fa-sync-alt"></i> REFRESH
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="student-display">
+                            <div class="student-header">
+                                <div class="student-id">
+                                    <span class="id-label">ID PELAJAR:</span>
+                                    <span class="id-value" id="displayStudentId">STD2024001</span>
+                                </div>
+                                <div class="student-qr" id="studentQrContainer">
+                                    <!-- QR will be generated here -->
+                                </div>
+                            </div>
+                            
+                            <div class="student-details">
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <span class="detail-label">NAMA:</span>
+                                        <span class="detail-value" id="studentName">Loading...</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">PROGRAM:</span>
+                                        <span class="detail-value" id="studentProgram">Loading...</span>
+                                    </div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <span class="detail-label">SEMESTER:</span>
+                                        <span class="detail-value" id="studentSemester">Loading...</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">STATUS:</span>
+                                        <span class="detail-value status-active" id="studentStatus">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Points Display -->
+                            <div class="points-display">
+                                <div class="points-card merit-card">
+                                    <div class="points-header">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <h4>MERIT</h4>
+                                    </div>
+                                    <div class="points-body">
+                                        <div class="points-value" id="meritValue">0</div>
+                                        <div class="points-bar">
+                                            <div class="points-fill" id="meritBar"></div>
+                                        </div>
+                                        <div class="points-history" id="meritHistory">
+                                            Tiada transaksi terkini
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="points-card demerit-card">
+                                    <div class="points-header">
+                                        <i class="fas fa-arrow-down"></i>
+                                        <h4>DEMERIT</h4>
+                                    </div>
+                                    <div class="points-body">
+                                        <div class="points-value" id="demeritValue">0</div>
+                                        <div class="points-bar">
+                                            <div class="points-fill" id="demeritBar"></div>
+                                        </div>
+                                        <div class="points-history" id="demeritHistory">
+                                            Tiada transaksi terkini
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Custom Points Input -->
+                            <div class="custom-points">
+                                <h4><i class="fas fa-sliders-h"></i> TAMBAH MATA KUSTOM</h4>
+                                <div class="custom-form">
+                                    <div class="form-group">
+                                        <select id="customType" class="select-field">
+                                            <option value="merit">MERIT (+)</option>
+                                            <option value="demerit">DEMERIT (-)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="number" 
+                                               id="customPoints" 
+                                               min="1" 
+                                               max="50" 
+                                               value="1"
+                                               class="input-field">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" 
+                                               id="customReason" 
+                                               placeholder="Sebab (optional)"
+                                               class="input-field">
+                                    </div>
+                                    <button class="btn btn-accent" id="submitCustom">
+                                        <i class="fas fa-check"></i> HANTAR
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Transaction History -->
+                    <div class="panel-section">
+                        <div class="section-header">
+                            <h3><i class="fas fa-history"></i> SEJARAH TRANSAKSI TERKINI</h3>
+                            <div class="section-actions">
+                                <button class="btn btn-secondary btn-sm" id="refreshHistoryBtn">
+                                    <i class="fas fa-sync-alt"></i> REFRESH
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="history-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>MASA</th>
+                                        <th>PELAJAR</th>
+                                        <th>JENIS</th>
+                                        <th>MATA</th>
+                                        <th>SEBAB</th>
+                                        <th>PENSYARAH</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody">
+                                    <tr>
+                                        <td colspan="6" class="empty-state">
+                                            <i class="fas fa-history"></i>
+                                            <div>Tiada transaksi untuk dipaparkan</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">Menyambung ke sistem...</div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/scanner.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
