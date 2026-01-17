@@ -1,7 +1,7 @@
 // Configuration for EDU-MERIT System
 const CONFIG = {
     // API Configuration - UPDATE WITH YOUR APPS SCRIPT URL
-    API_BASE_URL: 'https://script.google.com/macros/s/AKfycbyGn6_4MvX7GtdW_1cvjb-1d9MZYQBVwCbzZyTUD2IIXzS0boFFWJuJdKX-fI0DvFW/exec',
+    API_BASE_URL: 'https://script.google.com/macros/s/AKfycbyGn6_4MvX7GtdW_1cvjb-1d9MZYQBVwCbzZyTUD2IIzXzS0boFFWJuJdKX-fI0DvFW/exec',
     
     // System Settings
     SYSTEM_NAME: 'EDU-MERIT',
