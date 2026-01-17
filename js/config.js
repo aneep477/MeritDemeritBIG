@@ -1,7 +1,7 @@
 // Configuration for EDU-MERIT System
 const CONFIG = {
-    // API Configuration
-    API_BASE_URL: 'https://script.google.com/macros/s/AKfycbyGn6_4MvX7GtdW_1cvjb-1d9MZYQBVwCbzZyTUD2IIzXzS0boFFWJuJdKX-fI0DvFW/exec',
+    // API Configuration - UPDATE WITH YOUR APPS SCRIPT URL
+    API_BASE_URL: 'https://script.google.com/macros/s/AKfycbyGn6_4MvX7GtdW_1cvjb-1d9MZYQBVwCbzZyTUD2IIXzS0boFFWJuJdKX-fI0DvFW/exec',
     
     // System Settings
     SYSTEM_NAME: 'EDU-MERIT',
@@ -15,39 +15,43 @@ const CONFIG = {
             height: 250
         },
         aspectRatio: 1.0,
-        showTorchButtonIfSupported: true,
-        showZoomSliderIfSupported: true
+        disableFlip: false
     },
     
     // UI Settings
     THEME: 'industrial',
-    ANIMATION_SPEED: 300,
     
     // Storage Keys
     STORAGE_KEYS: {
         AUTH_TOKEN: 'edu_merit_token',
         USER_DATA: 'edu_merit_user',
-        LAST_SCAN: 'edu_merit_last_scan',
-        SETTINGS: 'edu_merit_settings'
+        LAST_STUDENT: 'edu_merit_last_student'
     },
     
-    // Point Values
-    POINT_VALUES: {
-        MERIT: [1, 2, 3, 5, 10],
-        DEMERIT: [1, 2, 3, 5, 10]
-    },
+    // Demo Credentials (for testing)
+    DEMO_CREDENTIALS: [
+        {
+            icNumber: '750512086543',
+            password: 'sarah',
+            name: 'DR. SARAH BINTI HASSAN'
+        },
+        {
+            icNumber: '820309126789',
+            password: 'ahmad',
+            name: 'PROF. MADYA DR. AHMAD BIN ISMAIL'
+        }
+    ],
     
     // Colors
     COLORS: {
         merit: '#27ae60',
         demerit: '#e74c3c',
-        primary: '#3498db',
+        success: '#27ae60',
+        error: '#e74c3c',
         warning: '#f39c12',
-        dark: '#2c3e50'
+        info: '#3498db'
     }
 };
 
-// Export for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CONFIG;
-}
+// Make CONFIG globally available
+window.CONFIG = CONFIG;
