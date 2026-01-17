@@ -3,59 +3,90 @@ class ApiService {
     constructor() {
         this.baseUrl = CONFIG.API_BASE_URL;
         this.token = localStorage.getItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN) || null;
+        this.user = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEYS.USER_DATA) || '{}');
     }
 
     // Set authentication token
-    setToken(token) {
+    setToken(token, userData) {
         this.token = token;
+        this.user = userData || {};
         localStorage.setItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN, token);
+        localStorage.setItem(CONFIG.STORAGE_KEYS.USER_DATA, JSON.stringify(userData || {}));
     }
 
-    // Remove token (logout)
+    // Clear token (logout)
     clearToken() {
         this.token = null;
+        this.user = {};
         localStorage.removeItem(CONFIG.STORAGE_KEYS.AUTH_TOKEN);
+        localStorage.removeItem(CONFIG.STORAGE_KEYS.USER_DATA);
+    }
+
+    // Get current user
+    getCurrentUser() {
+        return this.user;
     }
 
     // Generic request method
-    async request(endpoint, params = {}, method = 'GET') {
+    async request(action, params = {}, method = 'GET') {
         const url = new URL(this.baseUrl);
         
         // Add action parameter
-        url.searchParams.append('action', endpoint);
+        url.searchParams.append('action', action);
         
-        // Add token if available
-        if (this.token && endpoint !== 'login') {
+        // Add token if available (except for login and health)
+        if (this.token && action !== 'login' && action !== 'health') {
             url.searchParams.append('token', this.token);
         }
         
         // Add other parameters
         Object.keys(params).forEach(key => {
-            url.searchParams.append(key, params[key]);
+            if (params[key] !== undefined && params[key] !== null) {
+                url.searchParams.append(key, params[key]);
+            }
         });
         
+        console.log(`API ${method}: ${url.toString()}`);
+        
         try {
-            const response = await fetch(url, {
+            const options = {
                 method: method,
                 headers: {
                     'Accept': 'application/json'
-                }
-            });
+                },
+                // Important for CORS with Google Apps Script
+                mode: 'cors'
+            };
+            
+            const response = await fetch(url, options);
+            
+            // Check if response is OK
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
             
             const data = await response.json();
             
-            if (!data.success && data.error) {
-                throw new Error(data.error);
-            }
+            // Log for debugging
+            console.log(`API Response (${action}):`, data);
             
             return data;
+            
         } catch (error) {
-            console.error('API Request Failed:', error);
-            throw error;
+            console.error(`API Request Failed (${action}):`, error);
+            
+            // Return a structured error response
+            return {
+                success: false,
+                error: error.message,
+                message: 'Failed to connect to server. Please check your connection.'
+            };
         }
     }
 
-    // Health Check
+    // === PUBLIC ENDPOINTS ===
+    
+    // Health check
     async healthCheck() {
         return await this.request('health');
     }
@@ -68,62 +99,67 @@ class ApiService {
         });
         
         if (result.success && result.token) {
-            this.setToken(result.token);
-            localStorage.setItem(CONFIG.STORAGE_KEYS.USER_DATA, JSON.stringify(result.user));
+            this.setToken(result.token, result.user);
         }
         
         return result;
     }
 
+    // === PROTECTED ENDPOINTS ===
+    
     // Logout
     async logout() {
         try {
-            await this.request('logout');
+            if (this.token) {
+                await this.request('logout');
+            }
         } finally {
             this.clearToken();
-            localStorage.removeItem(CONFIG.STORAGE_KEYS.USER_DATA);
-            return { success: true };
+            return { success: true, message: 'Logged out successfully' };
         }
     }
 
-    // Scan Student
+    // Scan student
     async scanStudent(studentId) {
-        return await this.request('scanStudent', { studentId });
+        return await this.request('scanStudent', { studentId: studentId });
     }
 
-    // Add Points
+    // Add points
     async addPoints(studentId, type, points, reason = '') {
         return await this.request('addPoints', {
             studentId: studentId,
             type: type,
-            points: points,
+            points: points.toString(),
             reason: reason
         });
     }
 
-    // Get Student History
-    async getStudentHistory(studentId, limit = 20) {
+    // Get student history
+    async getStudentHistory(studentId, limit = 10) {
         return await this.request('getStudentHistory', {
             studentId: studentId,
-            limit: limit
+            limit: limit.toString()
         });
     }
 
-    // Get System Stats
+    // Get system stats
     async getSystemStats() {
         return await this.request('getSystemStats');
     }
 
-    // Generate QR Code
-    async generateQR(studentId) {
-        return await this.request('generateQR', { studentId });
+    // Get recent transactions
+    async getRecentTransactions(limit = 10) {
+        return await this.request('getRecentTransactions', {
+            limit: limit.toString()
+        });
     }
 
-    // Get Recent Transactions
-    async getRecentTransactions(limit = 10) {
-        return await this.request('getRecentTransactions', { limit });
+    // Generate QR code
+    async generateQR(studentId) {
+        return await this.request('generateQR', { studentId: studentId });
     }
 }
 
 // Create singleton instance
 const apiService = new ApiService();
+window.apiService = apiService;
