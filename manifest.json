@@ -2,11 +2,11 @@
   "name": "EDU-MERIT System",
   "short_name": "EDU-MERIT",
   "description": "Sistem Pengurusan Merit dan Demerit Pelajar",
-  "start_url": "/",
+  "start_url": "/MeritDemeritBIG/",
   "display": "standalone",
   "background_color": "#2c3e50",
   "theme_color": "#2c3e50",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",
@@ -48,5 +48,6 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "categories": ["education", "productivity", "utilities"]
 }
